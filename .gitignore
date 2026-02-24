@@ -1,0 +1,16 @@
+# Системные файлы Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Виртуальное окружение (если используешь)
+venv/
+.venv/
+env/
+
+# Настройки VS Code
+.vscode/
+
+# Системные файлы Windows
+Thumbs.db
+desktop.ini
