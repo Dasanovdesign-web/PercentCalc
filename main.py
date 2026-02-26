@@ -1,99 +1,90 @@
-import tkinter as tk
-from tkinter import messagebox
+import sys
+import os
+from PySide6.QtWidgets import QApplication, QMainWindow, QMessageBox
+from PySide6.QtUiTools import QUiLoader
+from PySide6.QtCore import QFile
 
-def calculate():
-    try:
-        # Получаем данные из полей
-        amount = float(entry_amount.get())
-        deposit_rate = float(entry_deposit.get())
-        inflation_rate = float(entry_inflation.get())
+class DepositApp(QMainWindow):
+    def __init__(self):
+        super().__init__()
         
-        # 1. Считаем «грязную» прибыль
-        nominal_profit = (amount * deposit_rate) / 100
-
-        # 2. Логика налогов (Ветка пользователя)
-        if tax_var.get() == 1: # Нерезидент
-            tax_value = nominal_profit * 0.10
-            profit_after_tax = nominal_profit - tax_value
-            status_text = "Статус: Нерезидент КР (налог 10%)"
-        else: # Резидент
-            profit_after_tax = nominal_profit
-            status_text = "Статус: Резидент КР (налог 0%)"
-
-        # 3. Учитываем инфляцию 
-        inflation_loss = (amount * inflation_rate) / 100
-        real_money_profit = profit_after_tax - inflation_loss
+        # 1. Загружаем интерфейс
+        self.load_ui()
         
-        # 4. Считаем реальную процентную ставку 
-        real_rate = (real_money_profit / amount) * 100
+        # 2. Привязываем кнопки к функциям
+        # Имена должны строго совпадать с ObjectName в Designer!
+        self.ui.btn_calculate.clicked.connect(self.calculate_logic)
+        self.ui.btn_clear.clicked.connect(self.clear_fields)
 
-        # Формируем итоговый текст
-        result_text = f"{status_text}\n"
-        result_text += f"Чистая прибыль: {real_money_profit:.2f} сом\n"
-        result_text += f"Реальная ставка: {real_rate:.2f}%"
+    def load_ui(self):
+        """Метод для загрузки .ui файла"""
+        ui_file_path = os.path.join(os.path.dirname(__file__), "calc_design.ui")
+        ui_file = QFile(ui_file_path)
         
-        # Визуальный фидбек (Цвета)
-        if real_rate > 0:
-            label_result.config(fg="green")
-            result_text += "\nВаши деньги приумножились! 📈"
-        elif real_rate == 0:
-            label_result.config(fg="blue")
-            result_text += "\nЦенность денег сохранилась ⚖️"
-        else:
-            label_result.config(fg="red")
-            result_text += "\nИнфляция съедает сбережения 📉"
-
-        label_result.config(text=result_text)
+        if not ui_file.open(QFile.ReadOnly):
+            print(f"Не удалось открыть файл: {ui_file_path}")
+            sys.exit(-1)
+            
+        loader = QUiLoader()
+        self.ui = loader.load(ui_file) # Загружаем UI как объект
+        ui_file.close()
         
-    except ValueError:
-        messagebox.showerror("Ошибка", "Введите числа во все поля")
+        # Устанавливаем загруженный UI как центральную часть окна
+        self.setCentralWidget(self.ui)
+        self.setWindowTitle("Инженерный калькулятор v2.0")
+        
+        # Подгоняем размер окна под размер дизайна из Designer
+        self.setFixedSize(self.ui.size()) 
 
-def clear_fields():
-    entry_amount.delete(0, tk.END)
-    entry_deposit.delete(0, tk.END)
-    entry_inflation.delete(0, tk.END)
-    entry_inflation.insert(0, "9.5")
-    label_result.config(text="", fg="black")        
+    def calculate_logic(self):
+        """Вся твоя математика здесь [cite: 2026-01-26]"""
+        try:
+            # Считываем данные из QLineEdit
+            amount = float(self.ui.input_amount.text())
+            deposit_rate = float(self.ui.input_rate.text())
+            inflation_rate = float(self.ui.input_inflation.text())
 
+            if amount <= 0:
+                QMessageBox.warning(self, "Ошибка", "Сумма должна быть больше нуля")
+                return
 
-root = tk.Tk()
-root.title("Депозитный калькулятор")
-root.geometry("400x600") 
+            # Логика налогов (резидент/нерезидент КР) [cite: 2026-01-16]
+            is_non_resident = self.ui.radio_nonresident.isChecked()
+            effective_nominal_rate = deposit_rate * (0.90 if is_non_resident else 1.0)
 
-tk.Label(root, text="Анализ депозита", font=("Inter", 14, "bold")).pack(pady=10)
+            # Формула Фишера (Реальная ставка) [cite: 2026-01-26]
+            real_rate = ((1 + effective_nominal_rate/100) / (1 + inflation_rate/100) - 1) * 100
+            real_money_profit = amount * (real_rate / 100)
 
-# Поля ввода
-tk.Label(root, text="Сумма депозита (сом):").pack()
-entry_amount = tk.Entry(root)
-entry_amount.pack(pady=5)
+            # Вывод результата в QLabel
+            status = "Нерезидент КР (10%)" if is_non_resident else "Резидент КР (0%)"
+            result_text = (
+                f"Статус: {status}\n"
+                f"Реальная прибыль: {real_money_profit:.2f} сом\n"
+                f"Реальная ставка: {real_rate:.2f}%"
+            )
+            
+            self.ui.lbl_result.setText(result_text)
+            
+            # Меняем цвет текста (зеленый для прибыли, красный для убытка)
+            if real_rate > 0:
+                self.ui.lbl_result.setStyleSheet("color: #4caf50; font-weight: bold; background: transparent;")
+            else:
+                self.ui.lbl_result.setStyleSheet("color: #D96060; font-weight: bold; background: transparent;")
 
-tk.Label(root, text="Ставка банка (%):").pack()
-entry_deposit = tk.Entry(root)
-entry_deposit.pack(pady=5)
+        except ValueError:
+            QMessageBox.critical(self, "Ошибка", "Пожалуйста, введите корректные числа")
 
-tk.Label(root, text="Текущая инфляция (%):").pack()
-entry_inflation = tk.Entry(root)
-entry_inflation.insert(0, "9.5") 
-entry_inflation.pack(pady=5)
+    def clear_fields(self):
+        """Очистка всех полей [cite: 2026-02-05]"""
+        self.ui.input_amount.clear()
+        self.ui.input_rate.clear()
+        self.ui.input_inflation.setText("9.5") 
+        self.ui.lbl_result.setText("Ожидание данных...")
+        self.ui.lbl_result.setStyleSheet("color: #D1D1D1; background: transparent;")
 
-# --- ВЫБОР СТАТУСА ---
-tk.Label(root, text="Ваш статус:", font=("Inter", 10, "bold")).pack(pady=10)
-
-tax_var = tk.IntVar() 
-tax_var.set(0) # По умолчанию Резидент (0)
-
-tk.Radiobutton(root, text="Резидент КР (0%)", variable=tax_var, value=0).pack()
-tk.Radiobutton(root, text="Нерезидент (10%)", variable=tax_var, value=1).pack()
-
-# Кнопки
-btn_calc = tk.Button(root, text="Рассчитать", command=calculate, bg="#4caf50", fg="White", font=("Inter", 12, "bold"))
-btn_calc.pack(pady=20)
-
-btn_clear = tk.Button(root, text="Очистить", command=clear_fields, bg="#D96060", fg="white")
-btn_clear.pack(pady=5)
-
-# Результат
-label_result = tk.Label(root, text="", font=("Inter", 11), justify="center")
-label_result.pack(pady=10)
-
-root.mainloop()
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    window = DepositApp()
+    window.show()
+    sys.exit(app.exec())

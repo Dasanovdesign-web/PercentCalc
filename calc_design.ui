@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>426</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">/* Основной фон окна и контейнера */
+QMainWindow, #centralwidget {
+    background-color: #141313;
+}
+
+/* Надписи */
+QLabel {
+    color: #D1D1D1;
+    font-family: &quot;Inter&quot;, &quot;Arial&quot;;
+}
+
+/* Поля ввода с эффектом «стекла» */
+QLineEdit {
+    background-color: rgba(255, 255, 255, 0.05); /* Полупрозрачный белый */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 10px;
+    color: #FFFFFF;
+    font-family: &quot;Inter&quot;;
+}
+
+/* Радиокнопки */
+QRadioButton {
+    color: #D1D1D1;
+    font-family: &quot;Inter&quot;;
+    spacing: 10px;
+}
+
+QRadioButton::indicator {
+    width: 18px;
+    height: 18px;
+    border-radius: 10px;
+    border: 1px solid #555;
+}
+
+QRadioButton::indicator:checked {
+    background-color: #FFFFFF; /* Белая точка */
+    border: 2px solid #FFFFFF;
+}
+
+/* Кнопка &quot;Рассчитать&quot; */
+QPushButton#btn_calculate {
+    background-color: #e0e0e0;
+    color: #141313;
+    border-radius: 18px; /* Чуть больше скругления как на макете */
+    padding: 10px;
+    font-weight: bold;
+    font-family: &quot;Inter&quot;;
+}
+
+/* Кнопка &quot;Очистить&quot; */
+QPushButton#btn_clear {
+    background-color: transparent;
+    color: #C8C8C8;
+    border: none;
+    font-family: &quot;Inter&quot;;
+}</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QLineEdit" name="input_rate">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>140</y>
+      <width>361</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Ставка банка</string>
+    </property>
+    <property name="placeholderText">
+     <string>Введите ставку в процентах(%)</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="input_inflation">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>200</y>
+      <width>361</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Текущая инфляция</string>
+    </property>
+    <property name="placeholderText">
+     <string>9.5</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="input_amount">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>80</y>
+      <width>361</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Сумма депозита</string>
+    </property>
+    <property name="placeholderText">
+     <string>Введите сумму депозита</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btn_clear">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>370</y>
+      <width>171</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Очистить</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btn_calculate">
+    <property name="geometry">
+     <rect>
+      <x>220</x>
+      <y>370</y>
+      <width>171</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Рассчитать</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="radio_resident">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>260</y>
+      <width>341</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Резидент КР (0%)</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="radio_nonresident">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>310</y>
+      <width>341</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Нерезидент КР (10%)</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="lbl_result">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>440</y>
+      <width>361</width>
+      <height>91</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>TextLabel</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>426</width>
+     <height>22</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
